@@ -1,0 +1,86 @@
+Configuration	VSD_TIM1PWM_USB_ADC_GPIO_SPI
+STM32CubeMX 	4.23.0
+Date	06/04/2018
+MCU	STM32F446RETx
+
+
+
+PERIPHERALS	MODES	FUNCTIONS	PINS
+ADC1	IN0	ADC1_IN0	PA0-WKUP
+ADC1	IN1	ADC1_IN1	PA1
+ADC1	IN2	ADC1_IN2	PA2
+ADC1	IN8	ADC1_IN8	PB0
+ADC1	IN10	ADC1_IN10	PC0
+ADC1	IN11	ADC1_IN11	PC1
+ADC1	IN12	ADC1_IN12	PC2
+ADC1	IN13	ADC1_IN13	PC3
+SPI1	Full-Duplex Master	SPI1_MISO	PA6
+SPI1	Full-Duplex Master	SPI1_MOSI	PA7
+SPI1	Full-Duplex Master	SPI1_SCK	PA5
+SPI1	Hardware NSS Output Signal	SPI1_NSS	PA4
+SYS	Serial Wire	SYS_JTCK-SWCLK	PA14
+SYS	Serial Wire	SYS_JTMS-SWDIO	PA13
+SYS	SysTick	SYS_VS_Systick	VP_SYS_VS_Systick
+TIM1	Internal Clock	TIM1_VS_ClockSourceINT	VP_TIM1_VS_ClockSourceINT
+TIM1	PWM Generation CH1 CH1N	TIM1_CH1	PA8
+TIM1	PWM Generation CH1 CH1N	TIM1_CH1N	PB13
+TIM1	PWM Generation CH2 CH2N	TIM1_CH2	PA9
+TIM1	PWM Generation CH2 CH2N	TIM1_CH2N	PB14
+TIM1	PWM Generation CH3 CH3N	TIM1_CH3	PA10
+TIM1	PWM Generation CH3 CH3N	TIM1_CH3N	PB1
+USB_OTG_FS	Device_Only	USB_OTG_FS_DM	PA11
+USB_OTG_FS	Device_Only	USB_OTG_FS_DP	PA12
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+8	PC0	ADC1_IN10	
+9	PC1	ADC1_IN11	
+10	PC2	ADC1_IN12	
+11	PC3	ADC1_IN13	
+14	PA0-WKUP	ADC1_IN0	
+15	PA1	ADC1_IN1	
+16	PA2	ADC1_IN2	
+20	PA4	SPI1_NSS	
+21	PA5	SPI1_SCK	
+22	PA6	SPI1_MISO	
+23	PA7	SPI1_MOSI	
+26	PB0	ADC1_IN8	
+27	PB1	TIM1_CH3N	
+34	PB13	TIM1_CH1N	
+35	PB14	TIM1_CH2N	
+41	PA8	TIM1_CH1	
+42	PA9	TIM1_CH2	
+43	PA10	TIM1_CH3	
+44	PA11	USB_OTG_FS_DM	
+45	PA12	USB_OTG_FS_DP	
+46	PA13	SYS_JTMS-SWDIO	
+49	PA14	SYS_JTCK-SWCLK	
+
+
+
+SOFTWARE PROJECT
+
+Project Settings : 
+Project Name : VSD_TIM1PWM_USB_ADC_GPIO_SPI
+Project Folder : C:\Users\Joshua\Documents\Stm32CubeMX projects\VSD_TIM1PWM_USB_ADC_GPIO_SPI
+Toolchain / IDE : SW4STM32
+Firmware Package Name and Version : STM32Cube FW_F4 V1.17.0
+
+
+Code Generation Settings : 
+STM32Cube Firmware Library Package : Copy only the necessary library files
+Generate peripheral initialization as a pair of '.c/.h' files per peripheral : No
+Backup previously generated files when re-generating : No
+Delete previously generated files when not re-generated : Yes
+Set all free pins as analog (to optimize the power consumption) : No
+
+
+Toolchains Settings : 
+Compiler Optimizations : Balanced Size/Speed
+
+
+
+
+
+
