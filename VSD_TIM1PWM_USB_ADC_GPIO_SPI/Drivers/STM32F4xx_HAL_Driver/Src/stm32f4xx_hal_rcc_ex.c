@@ -866,7 +866,7 @@ uint32_t HAL_RCCEx_GetPeriphCLKFreq(uint32_t PeriphClk)
 }
 #endif /* STM32F446xx */
 
-#if defined(STM32F469xx) || defined(STM32F479xx)
+#if defined(STM32F469xx) || defined(STM32F479xx) // i added this careful
 /**
   * @brief  Initializes the RCC extended peripherals clocks according to the specified
   *         parameters in the RCC_PeriphCLKInitTypeDef.
@@ -1040,28 +1040,12 @@ HAL_StatusTypeDef HAL_RCCEx_PeriphCLKConfig(RCC_PeriphCLKInitTypeDef  *PeriphClk
       /* PLLSAI_VCO Input  = PLL_SOURCE/PLLM */
       /* PLLSAI_VCO Output = PLLSAI_VCO Input * PLLSAIN */
       /* SAI_CLK(first level) = PLLSAI_VCO Output/PLLSAIQ */
-      __HAL_RCC_PLLSAI_CONFIG(PeriphClkInit->PLLSAI.PLLSAIN, pllsaip, PeriphClkInit->PLLSAI.PLLSAIQ, pllsair);
+    __HAL_RCC_PLLSAI_CONFIG(PeriphClkInit->PLLSAI.PLLSAIN, pllsaip, PeriphClkInit->PLLSAI.PLLSAIQ, pllsair);
       /* SAI_CLK_x = SAI_CLK(first level)/PLLSAIDIVQ */
       __HAL_RCC_PLLSAI_PLLSAICLKDIVQ_CONFIG(PeriphClkInit->PLLSAIDivQ);
     }
 
-    /*---------------------------- LTDC configuration ------------------------*/
-    if(((PeriphClkInit->PeriphClockSelection) & RCC_PERIPHCLK_LTDC) == (RCC_PERIPHCLK_LTDC))
-    {
-      assert_param(IS_RCC_PLLSAIR_VALUE(PeriphClkInit->PLLSAI.PLLSAIR));
-      assert_param(IS_RCC_PLLSAI_DIVR_VALUE(PeriphClkInit->PLLSAIDivR));
 
-      /* Read PLLSAIP value from PLLSAICFGR register (this value is not needed for SAI configuration) */
-      pllsaip = ((((RCC->PLLSAICFGR & RCC_PLLSAICFGR_PLLSAIP) >> RCC_PLLSAICFGR_PLLSAIP_Pos) + 1U) << 1U);
-      /* Read PLLSAIQ value from PLLSAICFGR register (this value is not need for SAI configuration) */
-      pllsaiq = ((RCC->PLLSAICFGR & RCC_PLLSAICFGR_PLLSAIQ) >> RCC_PLLSAICFGR_PLLSAIQ_Pos);
-      /* PLLSAI_VCO Input  = PLL_SOURCE/PLLM */
-      /* PLLSAI_VCO Output = PLLSAI_VCO Input * PLLSAIN */
-      /* LTDC_CLK(first level) = PLLSAI_VCO Output/PLLSAIR */
-      __HAL_RCC_PLLSAI_CONFIG(PeriphClkInit->PLLSAI.PLLSAIN, pllsaip, pllsaiq, PeriphClkInit->PLLSAI.PLLSAIR);
-      /* LTDC_CLK = LTDC_CLK(first level)/PLLSAIDIVR */
-      __HAL_RCC_PLLSAI_PLLSAICLKDIVR_CONFIG(PeriphClkInit->PLLSAIDivR);
-    }
 
     /*---------------------------- CLK48 configuration ------------------------*/
     /* Configure the PLLSAI when it is used as clock source for CLK48 */

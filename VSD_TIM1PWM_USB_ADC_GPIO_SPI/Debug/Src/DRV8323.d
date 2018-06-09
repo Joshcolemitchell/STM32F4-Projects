@@ -1,5 +1,4 @@
 Src/DRV8323.o: ../Src/DRV8323.c \
- C:/Users/Joshua/Documents/Stm32CubeMX\ projects/VSD_TIM1PWM_USB_ADC_GPIO_SPI/Inc/main.h \
  C:/Users/Joshua/Documents/Stm32CubeMX\ projects/VSD_TIM1PWM_USB_ADC_GPIO_SPI/Inc/DRV8323.h \
  C:/Users/Joshua/Documents/Stm32CubeMX\ projects/VSD_TIM1PWM_USB_ADC_GPIO_SPI/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  C:/Users/Joshua/Documents/Stm32CubeMX\ projects/VSD_TIM1PWM_USB_ADC_GPIO_SPI/Inc/stm32f4xx_hal_conf.h \
@@ -33,9 +32,8 @@ Src/DRV8323.o: ../Src/DRV8323.c \
  C:/Users/Joshua/Documents/Stm32CubeMX\ projects/VSD_TIM1PWM_USB_ADC_GPIO_SPI/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  C:/Users/Joshua/Documents/Stm32CubeMX\ projects/VSD_TIM1PWM_USB_ADC_GPIO_SPI/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h \
  C:/Users/Joshua/Documents/Stm32CubeMX\ projects/VSD_TIM1PWM_USB_ADC_GPIO_SPI/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h \
- C:/Users/Joshua/Documents/Stm32CubeMX\ projects/VSD_TIM1PWM_USB_ADC_GPIO_SPI/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h
-
-C:/Users/Joshua/Documents/Stm32CubeMX\ projects/VSD_TIM1PWM_USB_ADC_GPIO_SPI/Inc/main.h:
+ C:/Users/Joshua/Documents/Stm32CubeMX\ projects/VSD_TIM1PWM_USB_ADC_GPIO_SPI/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h \
+ C:/Users/Joshua/Documents/Stm32CubeMX\ projects/VSD_TIM1PWM_USB_ADC_GPIO_SPI/Inc/main.h
 
 C:/Users/Joshua/Documents/Stm32CubeMX\ projects/VSD_TIM1PWM_USB_ADC_GPIO_SPI/Inc/DRV8323.h:
 
@@ -104,3 +102,5 @@ C:/Users/Joshua/Documents/Stm32CubeMX\ projects/VSD_TIM1PWM_USB_ADC_GPIO_SPI/Dri
 C:/Users/Joshua/Documents/Stm32CubeMX\ projects/VSD_TIM1PWM_USB_ADC_GPIO_SPI/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h:
 
 C:/Users/Joshua/Documents/Stm32CubeMX\ projects/VSD_TIM1PWM_USB_ADC_GPIO_SPI/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h:
+
+C:/Users/Joshua/Documents/Stm32CubeMX\ projects/VSD_TIM1PWM_USB_ADC_GPIO_SPI/Inc/main.h:

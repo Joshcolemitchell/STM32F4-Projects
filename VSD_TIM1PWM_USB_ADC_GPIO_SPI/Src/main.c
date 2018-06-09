@@ -48,7 +48,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "stdio.h"
+#include <stdio.h>
 #include "stm32f4xx_hal.h"
 #include "usb_device.h"
 #include "DRV8323.h"
@@ -64,6 +64,9 @@ SPI_HandleTypeDef hspi1;
 
 TIM_HandleTypeDef htim1;
 
+
+TIM_OC_InitTypeDef sConfigOC;
+
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
@@ -75,9 +78,8 @@ static void MX_GPIO_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_ADC1_Init(void);
-
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
-                                
+void set_PWM_Duty(uint16_t PWM1_VALUE,uint16_t PWM2_VALUE,uint16_t PWM3_VALUE, uint16_t PWM_PERIOD);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -86,6 +88,7 @@ uint8_t stat, buf[500] = "Hello this is direct print\r\n";
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+
 
 /* USER CODE END 0 */
 
@@ -115,21 +118,22 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_TIM1_Init();
   MX_USB_DEVICE_Init();
   MX_SPI1_Init();
   MX_ADC1_Init();
-
+  HAL_Delay(2);
   /*Configure DRV8323  */
- // DRV8323_Config();
-  HAL_Delay(1);
+  HAL_GPIO_WritePin(DRV8323_ENABLE_PIN_PORT, DRV8323_ENABLE_PIN,ENABLE);// Disable the DRV83238
+  HAL_Delay(2);
+  DRV8323_Config();
+  HAL_Delay(2);
  /* if(DRV8323_Config()==1){
 	  HAL_GPIO_WritePin(DRV8323_ENABLE_PIN_PORT, DRV8323_ENABLE_PIN,ENABLE);// Enable the DRV83238}
   }else HAL_GPIO_WritePin(DRV8323_ENABLE_PIN_PORT, DRV8323_ENABLE_PIN,DISABLE);// Disable the DRV83238
 */
 
- HAL_GPIO_WritePin(GPIOC, GPIO_PIN_10,ENABLE);// Enable the DRV83238
- // HAL_GPIO_WritePin(DRV8323_ENABLE_PIN_PORT, DRV8323_ENABLE_PIN,DISABLE);// Disable the DRV83238
+  MX_TIM1_Init();
+  //HAL_GPIO_WritePin(DRV8323_ENABLE_PIN_PORT, DRV8323_ENABLE_PIN,DISABLE);// Disable the DRV83238
 
 	//HAL_GPIO_WritePin(SPIx_NSS_GPIO_PORT, SPIx_NSS_PIN, ENABLE);
 
@@ -143,8 +147,9 @@ int main(void)
 
   while (1)
   {
+
+	  static uint16_t PULSE[3] = {200};
 	  uint16_t DRV8323_Data[7] = {0};
-	  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_10,DISABLE);// Enable the DRV83238
   /* USER CODE END WHILE */
 	    HAL_GPIO_TogglePin(GREEN_LED_PORT, GREEN_LED); // show that we are in main loop
 
@@ -156,17 +161,26 @@ int main(void)
 	    {
 	    	HAL_GPIO_WritePin(RED_LED_PORT, RED_LED,DISABLE);
 	    }
-	   // DRV8323_Config();
-	    HAL_Delay(1);
+	   //DRV8323_writeSpi(ADR_GATE_DRV_HS,DRV8323regGateDrvHS);
+	   //DRV8323_Config();
+	   HAL_Delay(1);
 	   // DRV8323_writeSpi(ADR_DRV_CTRL, DRV8323regDrvCtrl);
-	    DRV8323_Data[0] = DRV8323_readSpi(ADR_FAULT_STAT);
-	    DRV8323_Data[1] = DRV8323_readSpi(ADR_VGS_STAT);
-	    DRV8323_Data[2] = DRV8323_readSpi(ADR_DRV_CTRL);
-	    DRV8323_Data[3] = DRV8323_readSpi(ADR_GATE_DRV_HS);
-	    DRV8323_Data[4] = DRV8323_readSpi(ADR_GATE_DRV_LS);
-	    DRV8323_Data[5] = DRV8323_readSpi(ADR_OCP_CTRL);
-	    DRV8323_Data[6] = DRV8323_readSpi(ADR_CSA_CTRL);
 
+	   DRV8323_Data[0] = DRV8323_readSpi(ADR_FAULT_STAT);
+	   DRV8323_Data[1] = DRV8323_readSpi(ADR_VGS_STAT);
+	   DRV8323_Data[2] = DRV8323_readSpi(ADR_DRV_CTRL);
+	   DRV8323_Data[3] = DRV8323_readSpi(ADR_GATE_DRV_HS);
+	   DRV8323_Data[4] = DRV8323_readSpi(ADR_GATE_DRV_LS);
+	   DRV8323_Data[5] = DRV8323_readSpi(ADR_OCP_CTRL);
+	   DRV8323_Data[6] = DRV8323_readSpi(ADR_CSA_CTRL);
+
+	   /*
+	   DRV8323_Data[0] = DRV8323regDrvCtrl;
+	   DRV8323_Data[1] = DRV8323regGateDrvHS;
+	   DRV8323_Data[2] =DRV8323regGateDrvLS;
+	   DRV8323_Data[3] = DRV8323regOcpCtrl;
+	   DRV8323_Data[4] = DRV8323regCsaCtrl;
+   */
 
 	    uint16_t string =  	"---------------------- \n"
 	    				"ADR_FAULT_STAT:0x%X \n"
@@ -178,15 +192,21 @@ int main(void)
 	    				"ADR_CSA_CTRL:0x%X \n"
 	    				"--------------------- \n";
 
-
-
 	    HAL_Delay(800);
 
-
-	  	len=sprintf(buf,string, DRV8323_Data[0],DRV8323_Data[1],DRV8323_Data[2],DRV8323_Data[3],DRV8323_Data[4],DRV8323_Data[5],DRV8323_Data[6]);
+	 	len=sprintf(buf,string, DRV8323_Data[0],DRV8323_Data[1],DRV8323_Data[2],DRV8323_Data[3],DRV8323_Data[4],DRV8323_Data[5],DRV8323_Data[6]);
 	  	// n=sprintf(buffer,"ADR_OCP_CTRL:0x%X\n", DRV8323_Data[1]);
 	  	CDC_Transmit_FS(buf, len);
 	    /* Insert a 80ms delay */
+
+	  	PULSE[0]= PULSE[0]+ 1;
+	  	PULSE[1]= PULSE[0];
+		PULSE[2]= PULSE[0];
+		if(PULSE[0]>800) PULSE[0]=200;
+		if(PULSE[1]>800) PULSE[1]=200;
+		if(PULSE[2]>800) PULSE[2]=200;
+
+	  	set_PWM_Duty(PULSE[0],PULSE[1],PULSE[2],PERIOD_VALUE);
 
   /* USER CODE BEGIN 3 */
 
@@ -212,17 +232,30 @@ void SystemClock_Config(void)
 
     /**Initializes the CPU, AHB and APB busses clocks  */
 
+/*
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
+  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.HSICalibrationValue = 16;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLM = 15;//15
+  RCC_OscInitStruct.PLL.PLLN = 360;//360
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;// RCC_PLLP_DIV2
+  RCC_OscInitStruct.PLL.PLLQ = 8;//8
+  RCC_OscInitStruct.PLL.PLLR = 2;//2
+  */
 
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = 16;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = 15;
+  RCC_OscInitStruct.PLL.PLLM = 16;
   RCC_OscInitStruct.PLL.PLLN = 360;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 8;
-  RCC_OscInitStruct.PLL.PLLR = 2;
+  RCC_OscInitStruct.PLL.PLLR = 6;
+
 
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -236,7 +269,7 @@ void SystemClock_Config(void)
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
   RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;//RCC_HCLK_DIV1
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
   {
@@ -244,7 +277,12 @@ void SystemClock_Config(void)
   }
 
   PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CLK48;
-  PeriphClkInitStruct.Clk48ClockSelection = RCC_CLK48CLKSOURCE_PLLQ;
+  PeriphClkInitStruct.Clk48ClockSelection = RCC_CLK48CLKSOURCE_PLLSAIP;
+  PeriphClkInitStruct.PLLSAI.PLLSAIM = 16;
+  PeriphClkInitStruct.PLLSAI.PLLSAIN= 192;
+  PeriphClkInitStruct.PLLSAI.PLLSAIP= 4;
+
+
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -311,10 +349,10 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_HIGH;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT; //acts as master//SPI_NSS_SOFT;//
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
-  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
+  hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_ENABLE;
   hspi1.Init.CRCPolynomial = 10;//10
 
   if (HAL_SPI_Init(&hspi1) != HAL_OK)
@@ -328,10 +366,9 @@ static void MX_SPI1_Init(void)
 static void MX_TIM1_Init(void)
 {
 
-  TIM_ClockConfigTypeDef sClockSourceConfig;
-  TIM_MasterConfigTypeDef sMasterConfig;
-  TIM_OC_InitTypeDef sConfigOC;
-  TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
+	TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
+	TIM_ClockConfigTypeDef sClockSourceConfig;
+	TIM_MasterConfigTypeDef sMasterConfig;
 
   /* Compute the prescaler value to have TIM1 counter clock equal to 18MHz */
  uint32_t uwPrescalerValue = (uint32_t) ((SystemCoreClock  / 18000000) - 1);
@@ -386,17 +423,17 @@ static void MX_TIM1_Init(void)
   	  */
 
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = uwPrescalerValue;
+  htim1.Init.Prescaler = 2;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = PERIOD_VALUE;
-  htim1.Init.ClockDivision = 0;//TIM_CLOCKDIVISION_DIV1;
-  htim1.Init.RepetitionCounter = 0;
+  htim1.Init.ClockDivision =2;//0
+  htim1.Init.RepetitionCounter =0 ;
   if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
 
-  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+ sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
   if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -407,12 +444,12 @@ static void MX_TIM1_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
- // sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
- // sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-//  if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
- // {
- //   _Error_Handler(__FILE__, __LINE__);
- // }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+ if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+ {
+   _Error_Handler(__FILE__, __LINE__);
+ }
 
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
 //  sConfigOC.Pulse = 0;
@@ -422,26 +459,25 @@ static void MX_TIM1_Init(void)
   sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
   sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
 
+  //set_PWM_Duty(500,500,500,1000);
 
-
-  /* Set the pulse value for channel 1 */
-  sConfigOC.Pulse = 140;//PULSE1_VALUE;
+  sConfigOC.Pulse = 500;
   if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
   {
-    _Error_Handler(__FILE__, __LINE__);
+	_Error_Handler(__FILE__, __LINE__);
   }
 
   /* Set the pulse value for channel 2 */
-  sConfigOC.Pulse = 140;//PULSE2_VALUE;
+  sConfigOC.Pulse = 520;
   if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
   {
-    _Error_Handler(__FILE__, __LINE__);
+	_Error_Handler(__FILE__, __LINE__);
   }
   /* Set the pulse value for channel 3 */
-  sConfigOC.Pulse = 140;// PULSE3_VALUE;
+  sConfigOC.Pulse = 500;
   if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
   {
-    _Error_Handler(__FILE__, __LINE__);
+	_Error_Handler(__FILE__, __LINE__);
   }
 
   sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
@@ -456,18 +492,18 @@ static void MX_TIM1_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-    HAL_TIM_MspPostInit(&htim1);
- // HAL_TIM_Base_Start(&htim1);
+  HAL_TIM_MspPostInit(&htim1);
 
   // ##-3- Start PWM signals generation ####################################### START ALL DOESNT WORK have to do each 1 individually
  	   /* Start channels ALL*/
- 	   if(HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1) != HAL_OK)
+
+	   if(HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3) != HAL_OK)
  	   {
  	     /* Starting Error*/
  	     Error_Handler();
  	   }
  	   /* Start channel ALLN*/
- 	   if(HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1) != HAL_OK)
+ 	   if(HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3) != HAL_OK)
  	   {
  	    /*Starting Error*/
  	     Error_Handler();
@@ -485,18 +521,18 @@ static void MX_TIM1_Init(void)
  	     Error_Handler();
  	   }
 
-
-	   if(HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3) != HAL_OK)
+	   if(HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1) != HAL_OK)
  	   {
  	     /* Starting Error*/
  	     Error_Handler();
  	   }
  	   /* Start channel ALLN*/
- 	   if(HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3) != HAL_OK)
+ 	   if(HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1) != HAL_OK)
  	   {
  	    /*Starting Error*/
  	     Error_Handler();
  	   }
+
 
 
 
@@ -519,6 +555,41 @@ static void MX_GPIO_Init(void)
 
 }
 
+
+void set_PWM_Duty(uint16_t PWM1_VALUE,uint16_t PWM2_VALUE,uint16_t PWM3_VALUE, uint16_t PWM_PERIOD)
+{
+
+	  TIM_OC_InitTypeDef sConfigOC;
+
+	 // if(((PWM1_VALUE < PWM_PERIOD)&&(PWM2_VALUE < PWM_PERIOD))&&(PWM3_VALUE < PWM_PERIOD))
+	 // {
+		  // need to put in some limiting stuff here to prevent OC faults or PWM values that are out of range.
+
+		  /* Set the pulse value for channel 1 */
+		  sConfigOC.Pulse = PWM1_VALUE;
+		  if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+		  {
+			_Error_Handler(__FILE__, __LINE__);
+		  }
+
+		  /* Set the pulse value for channel 2 */
+		  sConfigOC.Pulse = PWM2_VALUE;
+		  if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
+		  {
+			_Error_Handler(__FILE__, __LINE__);
+		  }
+		  /* Set the pulse value for channel 3 */
+		  sConfigOC.Pulse = PWM3_VALUE;
+		  if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+		  {
+			_Error_Handler(__FILE__, __LINE__);
+		  }
+	 // }else
+	 // {
+
+
+}
+
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
@@ -537,6 +608,8 @@ void _Error_Handler(char * file, int line)
   }
   /* USER CODE END Error_Handler_Debug */ 
 }
+
+
 
 #ifdef USE_FULL_ASSERT
 

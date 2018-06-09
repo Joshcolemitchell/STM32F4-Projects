@@ -64,7 +64,6 @@
   *        HAL drivers code
   */
 /* #define USE_FULL_ASSERT    1U */
-
 /* USER CODE BEGIN Private defines */
 /* Definition for GPIOx Pins */
 #define DRV8323_ENABLE_PIN 				GPIO_PIN_10
@@ -97,10 +96,10 @@
 #define SPIx_MOSI_GPIO_PORT              GPIOA
 #define SPIx_MOSI_AF                     GPIO_AF5_SPI1
   /* Private typedef -----------------------------------------------------------*/
-  #define  PERIOD_VALUE       (1800 - 1)  /* Period Value  */
-  #define  PULSE1_VALUE       (1800/2)         /* Capture Compare 1 Value  */
-  #define  PULSE2_VALUE       (1800/4)         /* Capture Compare 2 Value  */
-  #define  PULSE3_VALUE       (1800/8)         /* Capture Compare 3 Value  */
+  #define  PERIOD_VALUE       (1000 - 1)  /* Period Value  */
+  #define  PULSE1_VALUE       (1000/2)         /* Capture Compare 1 Value  */
+  #define  PULSE2_VALUE       (1000/4)         /* Capture Compare 2 Value  */
+  #define  PULSE3_VALUE       (1000/8)         /* Capture Compare 3 Value  */
 
 /* Definition for TIM1 PWMx Pins */
 #define GPIO_PIN_CHANNEL_HA              GPIO_PIN_8
@@ -109,6 +108,8 @@
 #define GPIO_PIN_CHANNEL_LA              GPIO_PIN_13
 #define GPIO_PIN_CHANNEL_LB              GPIO_PIN_14
 #define GPIO_PIN_CHANNEL_LC              GPIO_PIN_15
+
+
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
